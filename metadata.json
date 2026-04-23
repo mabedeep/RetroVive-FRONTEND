@@ -1,0 +1,6 @@
+{
+  "name": "RetroVibe Frontend",
+  "description": "A high-performance, HTML5-themed retro emulation frontend with XML metadata support and gamepad navigation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

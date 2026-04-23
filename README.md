@@ -4,32 +4,28 @@ Este documento explica cómo configurar tus juegos, archivos de metadatos (gamel
 
 ---
 
-## 1. Estructura de Directorios
+## 1. Estructura de Directorios y Archivos
 
-El programa busca los archivos en la carpeta `public/` (que es la raíz del servidor cuando ejecutas el proyecto).
+Todos tus juegos y multimedia deben ir dentro de la carpeta **`public/`** que se encuentra en la raíz del proyecto. El navegador solo puede leer archivos que estén en esta carpeta o sus subcarpetas.
 
-### Directorio de ROMs y Gamelist
-Cada sistema tiene su propia subcarpeta dentro de `/roms`. El archivo `gamelist.xml` **DEBE** estar en la raíz de la carpeta del sistema.
+### Ubicación de ROMs y Gamelist
+Para cada sistema (ej. SNES), debes crear su carpeta correspondiente dentro de `/roms`. El archivo `gamelist.xml` debe estar en la raíz de dicha carpeta.
 
-**Ubicación:** `/roms/{sistema}/gamelist.xml`
+**Ruta completa:** `public/roms/{sistema}/gamelist.xml`
 
 **Ejemplo para SNES:**
-- `roms/snes/gamelist.xml`
-- `roms/snes/Super Mario World.zip`
+- `public/roms/snes/gamelist.xml` (El archivo de metadatos)
+- `public/roms/snes/Super Mario World.zip` (Tu juego)
 
-### Estructura de Media
-La multimedia se organiza por sistema y por tipo de archivo. El nombre del archivo de media debe coincidir exactamente con el nombre de la ROM (sin la extensión).
+### Ubicación de Multimedia (Media)
+La media se organiza por sistema y categoría. Los nombres de los archivos de imagen o vídeo deben coincidir exactamente con el nombre del juego que aparece en la ruta del `gamelist.xml`.
 
-**Ubicación:** `/media/{sistema}/{tipo}/{romName}.{extension}`
+**Ruta completa:** `public/media/{sistema}/{categoría}/nombre_juego.png`
 
-**Tipos soportados:**
-- `box2d/`: Carátulas 2D (.png)
-- `box3d/`: Carátulas 3D (.png)
-- `fanart/`: Fondos decorativos (.jpg)
-- `logos/`: Logos del juego (.png)
-- `marquee/`: Marquesinas (.png)
-- `image/`: Capturas de pantalla (.jpg)
-- `video/`: Vídeos de previsualización (.mp4)
+**Categorías recomendadas:**
+- `public/media/snes/box2d/`: Carátulas (PNG)
+- `public/media/snes/fanart/`: Fondos (JPG)
+- `public/media/snes/video/`: Tráilers (MP4)
 
 ---
 

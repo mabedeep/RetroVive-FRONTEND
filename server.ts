@@ -16,9 +16,21 @@ async function startServer() {
   // API: Get current systems
   app.get('/api/systems', (req, res) => {
     const configPath = path.join(__dirname, 'src/constants.ts');
-    // For simplicity in this demo, we read from the file or a separate JSON
-    // In a real app, we'd use a dedicated systems.json
     res.json({ message: "Ready to manage systems" });
+  });
+
+  // API: Get music list
+  app.get('/api/music', (req, res) => {
+    const musicDir = path.join(__dirname, 'public/musica');
+    if (!fs.existsSync(musicDir)) {
+      fs.mkdirSync(musicDir, { recursive: true });
+      // Add a dummy file if empty for first run
+    }
+    
+    const files = fs.readdirSync(musicDir)
+      .filter(file => ['.mp3', '.ogg', '.wav', '.m4a'].includes(path.extname(file).toLowerCase()));
+    
+    res.json(files);
   });
 
   // API: Create new system structure

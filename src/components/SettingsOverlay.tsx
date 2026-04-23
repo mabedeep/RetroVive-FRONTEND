@@ -72,7 +72,7 @@ export const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClos
                       </div>
                       <div className="flex flex-col gap-3 p-4 bg-white/5 rounded-xl">
                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3"><Volume2 size={20} /> Volume</div>
+                            <div className="flex items-center gap-3"><Volume2 size={20} /> Master Volume</div>
                             <span>{settings.volume}%</span>
                          </div>
                          <input 
@@ -81,6 +81,39 @@ export const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ isOpen, onClos
                            onChange={(e) => updateSettings({ volume: parseInt(e.target.value) })}
                            className="accent-[var(--accent)]" 
                          />
+                      </div>
+
+                      <div className="flex flex-col gap-4 p-4 bg-white/5 rounded-xl border border-white/5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-3 font-bold text-sm"><Zap size={20} className="text-[var(--accent)]" /> Background Music</div>
+                            <span className="text-[10px] opacity-50 uppercase tracking-widest">Random tracks from /musica</span>
+                          </div>
+                          <button 
+                            onClick={() => updateSettings({ bgmEnabled: !settings.bgmEnabled })}
+                            className={`w-12 h-6 rounded-full relative transition-colors ${settings.bgmEnabled ? 'bg-[var(--accent)]' : 'bg-white/10'}`}
+                          >
+                            <motion.div 
+                              animate={{ x: settings.bgmEnabled ? 24 : 4 }}
+                              className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm"
+                            />
+                          </button>
+                        </div>
+
+                        {settings.bgmEnabled && (
+                          <div className="flex flex-col gap-2 mt-2">
+                             <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest">
+                                <span>Music Volume</span>
+                                <span>{settings.bgmVolume}%</span>
+                             </div>
+                             <input 
+                               type="range" 
+                               value={settings.bgmVolume}
+                               onChange={(e) => updateSettings({ bgmVolume: parseInt(e.target.value) })}
+                               className="accent-[var(--accent)] h-1" 
+                             />
+                          </div>
+                        )}
                       </div>
                     </section>
   

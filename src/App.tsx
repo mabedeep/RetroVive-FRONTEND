@@ -9,6 +9,7 @@ import { SystemSelect } from './components/SystemSelect';
 import { GameGrid } from './components/GameGrid';
 import { GameDetails } from './components/GameDetails';
 import { SettingsOverlay } from './components/SettingsOverlay';
+import { BackgroundMusic } from './components/BackgroundMusic';
 import { useNavigation } from './hooks/useNavigation';
 import { GameMetadata } from './types';
 
@@ -89,8 +90,7 @@ function AppContent() {
         onClose={() => setIsSettingsOpen(false)} 
       />
 
-      {/* Global Sound/Music controls could also go here */}
-      <audio id="bgm" src="/assets/audio/bgm.mp3" loop volumes={settings.volume / 100} />
+      <BackgroundMusic />
     </div>
   );
 }

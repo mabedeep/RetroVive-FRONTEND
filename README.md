@@ -27,6 +27,16 @@ La media se organiza por sistema y categoría. Los nombres de los archivos de im
 - `public/media/snes/fanart/`: Fondos (JPG)
 - `public/media/snes/video/`: Tráilers (MP4)
 
+---
+
+### Música de Fondo (BGM)
+Puedes poner tus canciones favoritas para que suenen mientras navegas por los menús.
+- **Ubicación**: `public/musica/`
+- **Formatos**: .mp3, .ogg, .wav, .m4a
+- **Funcionamiento**: El programa detecta automáticamente todos los archivos en esa carpeta y los reproduce de forma aleatoria. Puedes activar/desactivar la música y ajustar su volumen independientemente desde el menú de ajustes.
+
+---
+
 ### Logos de los Sistemas
 Para los logotipos que aparecen en el selector de sistemas, el programa los busca automáticamente en este orden de prioridad:
 1. `public/media/sistemas/logos/{id_sistema}.png` (Recomendado, usa nombres cortos como `snes`, `megadrive`, `mame`).
@@ -112,3 +122,14 @@ Simplemente cambia los valores de las variables CSS correspondientes al `id` del
 Puedes usar los scripts de la raíz para configurar todo con un clic:
 - **Windows**: Pulsa doble clic en `setup-and-run.bat`.
 - **Linux**: Ejecuta `./setup-and-run.sh` en la terminal.
+
+---
+
+## 6. Instalar como Servicio (Solo Linux)
+Si quieres que RetroFront se inicie automáticamente cada vez que enciendas tu PC o servidor Linux:
+1. Dale permisos: `chmod +x install-service.sh`
+2. Ejecuta con sudo: `sudo ./install-service.sh`
+
+Esto creará un servicio de sistema (`systemd`) llamado `retrofront` que se ejecutará en segundo plano.
+- Para ver el estado: `systemctl status retrofront`
+- Para ver los logs: `journalctl -u retrofront -f`

@@ -42,6 +42,8 @@ export type NavAction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT' | 'SELECT' | 'BACK' | '
 export interface AppSettings {
   theme: string;
   volume: number;
+  bgmEnabled: boolean;
+  bgmVolume: number;
   controllerMapping: Record<NavAction, number>;
   analogSensitivity: number;
   analogDeadZone: number;

@@ -33,6 +33,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [settings, setSettings] = useState<AppSettings>({
     theme: 'default',
     volume: 80,
+    bgmEnabled: true,
+    bgmVolume: 50,
     controllerMapping: {
       'UP': 12,    // D-Pad Up
       'DOWN': 13,  // D-Pad Down

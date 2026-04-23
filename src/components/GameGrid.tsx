@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useApp } from '../context/AppContext';
 import { useNavigation } from '../hooks/useNavigation';
@@ -15,7 +15,21 @@ export const GameGrid: React.FC = () => {
   const [index, setIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const gridContainerRef = useRef<HTMLDivElement>(null);
   const cols = 6;
+
+  // Auto-scroll logic
+  useEffect(() => {
+    if (gridContainerRef.current) {
+      const activeElement = gridContainerRef.current.children[index] as HTMLElement;
+      if (activeElement) {
+        activeElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }
+    }
+  }, [index]);
 
   const filteredGames = useMemo(() => {
     return games.filter(game => 
@@ -109,6 +123,7 @@ export const GameGrid: React.FC = () => {
           ) : (
             <motion.div
               key="grid"
+              ref={gridContainerRef}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="grid grid-cols-6 gap-6 overflow-y-auto pr-4 max-h-[80vh]"

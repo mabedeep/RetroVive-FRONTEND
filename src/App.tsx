@@ -12,6 +12,8 @@ import { SettingsOverlay } from './components/SettingsOverlay';
 import { useNavigation } from './hooks/useNavigation';
 import { GameMetadata } from './types';
 
+import { MetadataService } from './services/metadataService';
+
 function AppContent() {
   const { currentSystem, currentGame, setGames, isLoading, setIsLoading, settings } = useApp();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -21,35 +23,48 @@ function AppContent() {
     document.documentElement.setAttribute('data-theme', settings.theme);
   }, [settings.theme]);
 
-  // Mock data generation when system changes
+  // Loading gamelist.xml when system changes
   useEffect(() => {
     if (currentSystem) {
       setIsLoading(true);
       
-      // Simulate loading gamelist.xml with a delay
-      const timer = setTimeout(() => {
-        const mockGames: GameMetadata[] = Array.from({ length: 48 }).map((_, i) => ({
-          id: `${currentSystem.id}_game_${i}`,
-          path: `/roms/${currentSystem.folder}/game_${i}.zip`,
-          name: `Game Title ${i + 1}`,
-          desc: `Description for game ${i + 1}. This is where the game information from gamelist.xml would appear. Usually it includes genre, release date, and gameplay details.`,
-          rating: 4 + Math.random() * 6,
-          releasedate: '199' + (i % 9) + '0101',
-          developer: 'RetroDev Studio',
-          publisher: 'Classic Games Inc',
-          genre: 'Action / Arcade',
-          players: '1-2',
-          media: {
-             box2d: `/media/${currentSystem.folder}/box2d/game_${i}.png`,
-             fanart: `/media/${currentSystem.folder}/fanart/game_${i}.jpg`,
-             video: i % 2 === 0 ? `https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4` : undefined
+      const loadGamelist = async () => {
+        try {
+          const response = await fetch(`/roms/${currentSystem.folder}/gamelist.xml`);
+          if (response.ok) {
+            const xmlText = await response.text();
+            const parsedGames = await MetadataService.parseGamelist(currentSystem, xmlText);
+            setGames(parsedGames);
+          } else {
+            throw new Error('Gamelist not found, falling back to mock data');
           }
-        }));
-        setGames(mockGames);
-        setIsLoading(false);
-      }, 1000); // 1 second delay to show the spinner
+        } catch (error) {
+          console.warn(error);
+          // Fallback to mock data if real file is missing
+          const mockGames: GameMetadata[] = Array.from({ length: 48 }).map((_, i) => ({
+            id: `${currentSystem.id}_game_${i}`,
+            path: `/roms/${currentSystem.folder}/game_${i}.zip`,
+            name: `${currentSystem.name} Game ${i + 1}`,
+            desc: `Esta es una descripción de ejemplo para el juego ${i + 1}. Cuando coloques tu propio archivo gamelist.xml en /roms/${currentSystem.folder}/, esta información se actualizará automáticamente.`,
+            rating: 4 + Math.random() * 6,
+            releasedate: '199' + (i % 9) + '0101',
+            developer: 'RetroDev Studio',
+            publisher: 'Classic Games Inc',
+            genre: 'Action / Arcade',
+            players: '1-2',
+            media: {
+               box2d: `/media/${currentSystem.folder}/box2d/game_${i}.png`,
+               fanart: `/media/${currentSystem.folder}/fanart/game_${i}.jpg`,
+               video: i % 2 === 0 ? `https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4` : undefined
+            }
+          }));
+          setGames(mockGames);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
-      return () => clearTimeout(timer);
+      loadGamelist();
     }
   }, [currentSystem, setGames, setIsLoading]);
 

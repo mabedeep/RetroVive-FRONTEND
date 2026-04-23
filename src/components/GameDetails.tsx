@@ -7,12 +7,35 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useApp } from '../context/AppContext';
 import { useNavigation } from '../hooks/useNavigation';
-import { Play, Info, Star, Users, Calendar, Building2, Film } from 'lucide-react';
+import { Play, Info, Star, Users, Calendar, Building2, Film, Maximize, Minimize, Joystick, Gamepad2, Monitor } from 'lucide-react';
 
 export const GameDetails: React.FC = () => {
-  const { currentGame, setCurrentGame } = useApp();
+  const { currentGame, setCurrentGame, currentSystem } = useApp();
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const [isFullscreen, setIsFullscreen] = useState(!!document.fullscreenElement);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  useEffect(() => {
+    setLogoError(false);
+  }, [currentSystem]);
 
   const triggerVibration = () => {
     // Gamepad vibration
@@ -159,14 +182,50 @@ export const GameDetails: React.FC = () => {
               {isPlayingVideo ? 'STOP PREVIEW' : 'WATCH PREVIEW'}
             </motion.button>
           )}
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`w-full h-14 bg-white/10 text-white font-bold flex items-center justify-center gap-3 rounded-xl border border-white/5 hover:bg-white/20`}
+            onClick={toggleFullscreen}
+          >
+            {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+            {isFullscreen ? 'EXIT FULLSCREEN' : 'ENTER FULLSCREEN'}
+          </motion.button>
         </div>
       </div>
 
       <div className="relative w-2/3 h-full p-20 flex flex-col justify-center gap-8 overflow-y-auto">
         <motion.div
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
         >
+          {currentSystem && (
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mb-4 h-14 flex items-center gap-3"
+            >
+              {!logoError ? (
+                <img 
+                  src={`/media/logos/${currentSystem.logo}`} 
+                  alt={currentSystem.name}
+                  className="h-full object-contain filter drop-shadow-lg opacity-80"
+                  onError={() => setLogoError(true)}
+                />
+              ) : (
+                <div className="flex items-center gap-3 text-[var(--accent)] opacity-80">
+                  {currentSystem.type === 'arcade' && <Joystick size={32} strokeWidth={1.5} />}
+                  {currentSystem.type === 'console' && <Gamepad2 size={32} strokeWidth={1.5} />}
+                  {currentSystem.type !== 'arcade' && currentSystem.type !== 'console' && <Monitor size={32} strokeWidth={1.5} />}
+                  <span className="text-xl font-black uppercase tracking-tighter italic">
+                    {currentSystem.name}
+                  </span>
+                </div>
+              )}
+            </motion.div>
+          )}
           <h1 className="text-7xl font-black mb-4 tracking-tighter">{currentGame.name}</h1>
           <div className="flex gap-6 mb-8 text-[var(--accent)] font-bold">
              <div className="flex items-center gap-2"><Star size={18} fill="currentColor" /> {currentGame.rating.toFixed(1)}/10</div>

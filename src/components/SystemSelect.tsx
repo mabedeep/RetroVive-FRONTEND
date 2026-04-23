@@ -106,56 +106,64 @@ export const SystemSelect: React.FC = () => {
         </motion.div>
       </AnimatePresence>
 
-      <div className="absolute top-16 text-center z-10">
+      <div className="absolute top-4 text-center z-10">
         <motion.h1 
           initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 0.25, y: 0 }}
-          className="text-9xl font-black italic tracking-tighter font-[Anton] text-white select-none pointer-events-none"
+          animate={{ opacity: 0.3, y: 0 }}
+          className="text-8xl font-black italic tracking-tighter font-[Anton] text-white select-none pointer-events-none"
         >
           RETROVIBE
         </motion.h1>
-        <div className="h-1 w-24 bg-[var(--accent)] mx-auto mt-2 opacity-50" />
+        <div className="h-1 w-24 bg-[var(--accent)] mx-auto -mt-2 opacity-50" />
       </div>
 
       {/* Centered Carousel Track */}
-      <div className="relative w-full h-[450px] flex items-center justify-center perspective-[1000px] z-10">
+      <div className="relative w-full h-[450px] flex items-center justify-center perspective-[2000px] z-10 overflow-visible">
         <motion.div 
           animate={{ 
-            x: -index * (288 + 48) // Card width (w-72 = 288px) + gap (gap-12 = 48px)
+            // Formula to center the item at index 'index'
+            // The container is justify-center, so we offset from the theoretical center
+            x: ((systems.length - 1) / 2 - index) * (288 + 48) 
           }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          transition={{ type: "spring", stiffness: 120, damping: 20 }}
           className="flex items-center gap-12"
         >
-          {systems.map((system, i) => (
-            <motion.div
-              key={system.id}
-              animate={{
-                scale: i === index ? 1.2 : 0.8,
-                opacity: i === index ? 1 : 0.4,
-                rotateY: i === index ? 0 : (i < index ? 45 : -45),
-                z: i === index ? 100 : 0,
-              }}
-              className={`relative flex flex-col items-center gap-4 cursor-pointer rounded-3xl shrink-0 w-72 h-72 ${
-                i === index ? 'bg-[var(--bg-secondary)]/80 shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5),0_18px_36px_-18px_rgba(0,0,0,0.5)] backdrop-blur-md ring-2 ring-white/20' : 'bg-black/20'
-              }`}
-              onClick={() => {
-                setIndex(i);
-                if (index === i) setCurrentSystem(system);
-              }}
-            >
-              <div className="w-full h-full rounded-xl flex items-center justify-center relative overflow-hidden">
-                <SystemLogo system={system} />
-              </div>
+          {systems.map((system, i) => {
+            const distance = Math.abs(i - index);
+            const isSelected = i === index;
+            
+            return (
+              <motion.div
+                key={system.id}
+                animate={{
+                  scale: isSelected ? 1.25 : 0.75,
+                  opacity: distance > 2 ? 0 : (isSelected ? 1 : 0.4),
+                  rotateY: isSelected ? 0 : (i < index ? 35 : -35),
+                  z: isSelected ? 200 : -100,
+                  filter: isSelected ? "blur(0px)" : "blur(2px)",
+                }}
+                className={`relative flex flex-col items-center gap-4 cursor-pointer rounded-3xl shrink-0 w-72 h-72 ${
+                  isSelected ? 'bg-[var(--bg-secondary)]/90 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl ring-2 ring-white/30' : 'bg-black/30'
+                }`}
+                onClick={() => {
+                  setIndex(i);
+                  if (isSelected) setCurrentSystem(system);
+                }}
+              >
+                <div className="w-full h-full rounded-xl flex items-center justify-center relative overflow-hidden p-4">
+                  <SystemLogo system={system} />
+                </div>
 
-              {/* Selection Glow */}
-              {i === index && (
-                <motion.div 
-                  layoutId="glow"
-                  className="absolute -inset-4 bg-[var(--accent)]/20 blur-3xl -z-10 rounded-full"
-                />
-              )}
-            </motion.div>
-          ))}
+                {/* Selection Glow */}
+                {isSelected && (
+                  <motion.div 
+                    layoutId="glow"
+                    className="absolute -inset-8 bg-[var(--accent)]/30 blur-[60px] -z-10 rounded-full"
+                  />
+                )}
+              </motion.div>
+            );
+          })}
         </motion.div>
       </div>
 

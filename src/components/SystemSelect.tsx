@@ -10,7 +10,7 @@ import { useApp } from '../context/AppContext';
 import { useNavigation } from '../hooks/useNavigation';
 import { Joystick, Gamepad2, Monitor } from 'lucide-react';
 
-const SystemLogo: React.FC<{ system: (typeof SYSTEMS)[0] }> = ({ system }) => {
+const SystemLogo: React.FC<{ system: any }> = ({ system }) => {
   const [logoPathIndex, setLogoPathIndex] = useState(0);
   
   // Try these paths in order
@@ -64,17 +64,19 @@ const SystemLogo: React.FC<{ system: (typeof SYSTEMS)[0] }> = ({ system }) => {
 };
 
 export const SystemSelect: React.FC = () => {
-  const { setCurrentSystem, currentSystem, settings } = useApp();
+  const { setCurrentSystem, currentSystem, settings, systems } = useApp();
   const [index, setIndex] = useState(0);
 
-  const currentSystemConfig = SYSTEMS[index];
+  const currentSystemConfig = systems[index] || systems[0];
+  if (!currentSystemConfig) return null;
+
   const systemBackground = settings.systemBackgrounds[currentSystemConfig.id] || `/media/${currentSystemConfig.folder}/${currentSystemConfig.background}`;
 
   useNavigation({
     onAction: (action) => {
       if (action === 'LEFT') setIndex(prev => Math.max(0, prev - 1));
-      if (action === 'RIGHT') setIndex(prev => Math.min(SYSTEMS.length - 1, prev + 1));
-      if (action === 'SELECT') setCurrentSystem(SYSTEMS[index]);
+      if (action === 'RIGHT') setIndex(prev => Math.min(systems.length - 1, prev + 1));
+      if (action === 'SELECT') setCurrentSystem(systems[index]);
     }
   });
 
@@ -111,7 +113,7 @@ export const SystemSelect: React.FC = () => {
       </div>
 
       <div className="flex items-center gap-12 px-20 relative z-10">
-        {SYSTEMS.map((system, i) => (
+        {systems.map((system, i) => (
           <motion.div
             key={system.id}
             animate={{
@@ -136,7 +138,7 @@ export const SystemSelect: React.FC = () => {
 
       <div className="absolute bottom-20 text-center relative z-10">
         <p className="text-[var(--text-dim)] uppercase tracking-widest text-sm bg-black/40 px-6 py-2 rounded-full backdrop-blur-sm">
-          {SYSTEMS[index].fullname} • {SYSTEMS[index].manufacturer} • {SYSTEMS[index].releaseYear}
+          {currentSystemConfig.fullname} • {currentSystemConfig.manufacturer} • {currentSystemConfig.releaseYear}
         </p>
       </div>
     </div>

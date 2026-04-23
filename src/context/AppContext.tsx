@@ -8,6 +8,8 @@ import { AppSettings, GameMetadata, SystemConfig } from '../types';
 import { SYSTEMS } from '../constants';
 
 interface AppContextType {
+  systems: SystemConfig[];
+  reloadSystems: () => Promise<void>;
   currentSystem: SystemConfig | null;
   setCurrentSystem: (system: SystemConfig | null) => void;
   currentGame: GameMetadata | null;
@@ -23,6 +25,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [systems, setSystems] = useState<SystemConfig[]>(SYSTEMS);
   const [currentSystem, setCurrentSystem] = useState<SystemConfig | null>(null);
   const [currentGame, setCurrentGame] = useState<GameMetadata | null>(null);
   const [games, setGames] = useState<GameMetadata[]>([]);
@@ -44,12 +47,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     systemBackgrounds: {},
   });
 
+  const reloadSystems = async () => {
+    try {
+      const res = await fetch('/systems.json');
+      if (res.ok) {
+        const data = await res.json();
+        setSystems(data);
+      }
+    } catch (error) {
+      console.error('Failed to load systems:', error);
+    }
+  };
+
+  useEffect(() => {
+    reloadSystems();
+  }, []);
+
   const updateSettings = (newSettings: Partial<AppSettings>) => {
     setSettings(prev => ({ ...prev, ...newSettings }));
   };
 
   return (
     <AppContext.Provider value={{
+      systems, reloadSystems,
       currentSystem, setCurrentSystem,
       currentGame, setCurrentGame,
       games, setGames,

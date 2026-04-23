@@ -27,6 +27,12 @@ La media se organiza por sistema y categoría. Los nombres de los archivos de im
 - `public/media/snes/fanart/`: Fondos (JPG)
 - `public/media/snes/video/`: Tráilers (MP4)
 
+### Logos de los Sistemas
+Para los logotipos que aparecen en el selector de sistemas, el programa los busca automáticamente en este orden de prioridad:
+1. `public/media/sistemas/logos/{id_sistema}.png` (Recomendado, usa nombres cortos como `snes`, `megadrive`, `mame`).
+2. La ruta definida en `src/constants.ts`.
+3. `public/media/{carpeta_sistema}/logo.png`.
+
 ---
 
 ## 2. Agregar Nuevos Sistemas

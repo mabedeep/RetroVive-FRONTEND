@@ -11,21 +11,36 @@ import { useNavigation } from '../hooks/useNavigation';
 import { Joystick, Gamepad2, Monitor } from 'lucide-react';
 
 const SystemLogo: React.FC<{ system: (typeof SYSTEMS)[0] }> = ({ system }) => {
-  const [hasError, setHasError] = useState(false);
+  const [logoPathIndex, setLogoPathIndex] = useState(0);
+  
+  // Try these paths in order
+  const logoPaths = [
+    `/media/sistemas/logos/${system.id}.png`,
+    `/media/logos/${system.logo}`,
+    `/media/${system.folder}/logo.png`,
+  ];
+
+  const handleLogoError = () => {
+    if (logoPathIndex < logoPaths.length - 1) {
+      setLogoPathIndex(prev => prev + 1);
+    } else {
+      setLogoPathIndex(-1); // Signal to show fallback icon
+    }
+  };
 
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center p-6">
       <AnimatePresence mode="wait">
-        {!hasError ? (
+        {logoPathIndex !== -1 ? (
           <motion.img
-            key="logo"
+            key={logoPaths[logoPathIndex]}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            src={`/media/logos/${system.logo}`}
+            src={logoPaths[logoPathIndex]}
             alt={system.name}
             referrerPolicy="no-referrer"
             className="max-w-[80%] max-h-[60%] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] z-10"
-            onError={() => setHasError(true)}
+            onError={handleLogoError}
           />
         ) : (
           <motion.div

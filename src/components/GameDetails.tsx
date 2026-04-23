@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useApp } from '../context/AppContext';
 import { useNavigation } from '../hooks/useNavigation';
 import { Play, Info, Star, Users, Calendar, Building2, Film, Maximize, Minimize, Joystick, Gamepad2, Monitor } from 'lucide-react';
 
 export const GameDetails: React.FC = () => {
-  const { currentGame, setCurrentGame, currentSystem } = useApp();
+  const { currentGame, setCurrentGame, currentSystem, settings, updateSettings } = useApp();
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -56,9 +56,38 @@ export const GameDetails: React.FC = () => {
     }
   };
 
-  const handleLaunch = () => {
+  const handleLaunch = async () => {
+    if (!currentGame || !currentSystem) return;
+
     triggerVibration();
-    alert(`Launching: ${currentGame?.path} with RetroArch...`);
+    
+    // Pause BGM via settings (or we could expose a dedicated method)
+    const originalBgmState = settings.bgmEnabled;
+    updateSettings({ bgmEnabled: false });
+
+    try {
+      const response = await fetch('/api/launch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          path: currentGame.path,
+          systemId: currentSystem.id
+        })
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        alert(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Launch failed:', error);
+      alert('Failed to launch RetroArch. Make sure the server is running and RetroArch is installed.');
+    } finally {
+      // Resume BGM if it was originally enabled
+      if (originalBgmState) {
+        updateSettings({ bgmEnabled: true });
+      }
+    }
   };
 
   useNavigation({

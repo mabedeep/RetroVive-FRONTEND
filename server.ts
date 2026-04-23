@@ -7,11 +7,60 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+import { spawn } from 'child_process';
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
   app.use(express.json());
+
+  // API: Launch Game with RetroArch
+  app.post('/api/launch', (req, res) => {
+    const { path: romPath, systemId } = req.body;
+    
+    if (!romPath) return res.status(400).json({ error: 'ROM path is required' });
+
+    // Determine the absolute path to the ROM
+    // Since 'path' in gamelist is usually relative or absolute, we normalize it
+    const absoluteRomPath = romPath.startsWith('/') 
+      ? path.join(__dirname, 'public', romPath)
+      : path.join(__dirname, 'public/roms', systemId, romPath);
+
+    console.log(`Launching: ${absoluteRomPath}`);
+
+    // Map systemId to RetroArch Core (this would ideally be in a config file)
+    const coreMap: Record<string, string> = {
+      'snes': 'snes9x_libretro.so',
+      'mame': 'mame_libretro.so',
+      'neogeo': 'fbneon_libretro.so',
+      'genesis': 'genesis_plus_gx_libretro.so',
+      'gba': 'mgba_libretro.so',
+      // Add more as needed
+    };
+
+    const core = coreMap[systemId] || 'detect';
+    
+    // Command to launch RetroArch
+    // Adjust command based on OS if necessary
+    const args = ['-L', core, absoluteRomPath];
+    
+    try {
+      const retroarch = spawn('retroarch', args);
+
+      retroarch.on('error', (err) => {
+        console.error('Failed to start RetroArch:', err);
+        res.status(500).json({ error: 'Could not find RetroArch. Make sure it is in your PATH.' });
+      });
+
+      retroarch.on('close', (code) => {
+        console.log(`RetroArch exited with code ${code}`);
+        res.json({ success: true, code });
+      });
+    } catch (err) {
+      res.status(500).json({ error: (err as Error).message });
+    }
+  });
 
   // API: Get current systems
   app.get('/api/systems', (req, res) => {

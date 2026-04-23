@@ -81,7 +81,7 @@ export const SystemSelect: React.FC = () => {
   });
 
   return (
-    <div className="h-screen w-full flex flex-col justify-center items-center overflow-hidden relative">
+    <div className="h-screen w-full flex flex-col justify-center items-center overflow-hidden relative bg-[var(--bg-primary)]">
       {/* Dynamic Background */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -106,40 +106,88 @@ export const SystemSelect: React.FC = () => {
         </motion.div>
       </AnimatePresence>
 
-      <div className="text-center mb-12 relative z-10">
-        <h1 className="text-6xl font-black italic tracking-tighter opacity-10 font-[Anton]">
+      <div className="absolute top-16 text-center z-10">
+        <motion.h1 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 0.25, y: 0 }}
+          className="text-9xl font-black italic tracking-tighter font-[Anton] text-white select-none pointer-events-none"
+        >
           RETROVIBE
-        </h1>
+        </motion.h1>
+        <div className="h-1 w-24 bg-[var(--accent)] mx-auto mt-2 opacity-50" />
       </div>
 
-      <div className="flex items-center gap-12 px-20 relative z-10">
-        {systems.map((system, i) => (
+      {/* Centered Carousel Track */}
+      <div className="relative w-full h-[450px] flex items-center justify-center perspective-[1000px] z-10">
+        <motion.div 
+          animate={{ 
+            x: -index * (288 + 48) // Card width (w-72 = 288px) + gap (gap-12 = 48px)
+          }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className="flex items-center gap-12"
+        >
+          {systems.map((system, i) => (
+            <motion.div
+              key={system.id}
+              animate={{
+                scale: i === index ? 1.2 : 0.8,
+                opacity: i === index ? 1 : 0.4,
+                rotateY: i === index ? 0 : (i < index ? 45 : -45),
+                z: i === index ? 100 : 0,
+              }}
+              className={`relative flex flex-col items-center gap-4 cursor-pointer rounded-3xl shrink-0 w-72 h-72 ${
+                i === index ? 'bg-[var(--bg-secondary)]/80 shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5),0_18px_36px_-18px_rgba(0,0,0,0.5)] backdrop-blur-md ring-2 ring-white/20' : 'bg-black/20'
+              }`}
+              onClick={() => {
+                setIndex(i);
+                if (index === i) setCurrentSystem(system);
+              }}
+            >
+              <div className="w-full h-full rounded-xl flex items-center justify-center relative overflow-hidden">
+                <SystemLogo system={system} />
+              </div>
+
+              {/* Selection Glow */}
+              {i === index && (
+                <motion.div 
+                  layoutId="glow"
+                  className="absolute -inset-4 bg-[var(--accent)]/20 blur-3xl -z-10 rounded-full"
+                />
+              )}
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+
+      <div className="absolute bottom-20 text-center relative z-20">
+        <AnimatePresence mode="wait">
           <motion.div
-            key={system.id}
-            animate={{
-              scale: i === index ? 1.2 : 0.8,
-              opacity: i === index ? 1 : 0.4,
-              x: (index - i) * -100
-            }}
-            className={`flex flex-col items-center gap-4 cursor-pointer rounded-2xl ${
-              i === index ? 'bg-[var(--bg-secondary)]/80 shadow-[var(--card-shadow)] backdrop-blur-md' : 'bg-black/20'
-            }`}
-            onClick={() => {
-              setIndex(i);
-              if (index === i) setCurrentSystem(system);
-            }}
+            key={currentSystemConfig.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="flex flex-col items-center gap-2"
           >
-            <div className="w-72 h-72 rounded-xl flex items-center justify-center relative overflow-hidden">
-              <SystemLogo system={system} />
-            </div>
+            <p className="text-[var(--text-dim)] uppercase tracking-wider text-xs font-bold bg-black/40 px-6 py-2 rounded-full backdrop-blur-sm border border-white/5">
+              {currentSystemConfig.fullname}
+            </p>
+            <p className="text-[10px] text-[var(--accent)] font-black uppercase tracking-[0.3em] mt-2">
+              {currentSystemConfig.manufacturer} • {currentSystemConfig.releaseYear} • {systems.length} SYSTEMS
+            </p>
           </motion.div>
-        ))}
+        </AnimatePresence>
       </div>
 
-      <div className="absolute bottom-20 text-center relative z-10">
-        <p className="text-[var(--text-dim)] uppercase tracking-widest text-sm bg-black/40 px-6 py-2 rounded-full backdrop-blur-sm">
-          {currentSystemConfig.fullname} • {currentSystemConfig.manufacturer} • {currentSystemConfig.releaseYear}
-        </p>
+      {/* Navigation Indicators */}
+      <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-1.5 z-20">
+         {systems.map((_, i) => (
+           <div 
+             key={i} 
+             className={`h-0.5 transition-all duration-300 ${
+               i === index ? 'w-8 bg-[var(--accent)]' : 'w-2 bg-white/10'
+             }`} 
+           />
+         ))}
       </div>
     </div>
   );
